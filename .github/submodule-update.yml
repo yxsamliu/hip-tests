@@ -1,0 +1,40 @@
+mappings:
+  - sourceBranch: amd-mainline-closed
+    dependents: #upstream repo details
+      - organization: AMD-Radeon-Driver
+        repo: compute
+        path: hip-tests
+        branch: amd/stg/compiler
+      - organization: AMD-Radeon-Driver
+        repo: compute
+        path: hip-tests
+        branch: amd/stg/compiler-closed
+      - organization: AMD-Radeon-Driver
+        repo: compute
+        path: hip-tests
+        branch: amd/stg/compiler-trunk
+  - sourceBranch: amd-npi
+    dependents: #upstream repo details
+      - organization: AMD-Radeon-Driver
+        repo: compute
+        path: hip-tests
+        branch: amd/npi/compute
+      - organization: AMD-Radeon-Driver
+        repo: compute
+        path: hip-tests
+        branch: amd/npi/gfx11
+  - sourceBranch: amd-staging-closed
+    dependents: #upstream repo details
+      - organization: AMD-Radeon-Driver
+        repo: compute
+        path: hip-tests
+        branch: amd/stg/runtime-closed
+  - sourceBranch: amd-staging
+    dependents: #upstream repo details
+      - organization: AMD-Radeon-Driver
+        repo: compute
+        path: hip-tests
+        branch: amd/stg/runtime
+commitJiraTicket: 'SWDEV-1 -'
+emailSender: no-reply-github@amd.com
+emailRecipients: dl.GitHubSiteAdmin@amd.com
