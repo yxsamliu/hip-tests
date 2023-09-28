@@ -35,6 +35,6 @@ mappings:
         repo: compute
         path: hip-tests
         branch: amd/stg/runtime
-commitJiraTicket: 'SWDEV-1 -'
+commitJiraTicket: 'SWDEV-4 -'
 emailSender: no-reply-github@amd.com
 emailRecipients: dl.GitHubSiteAdmin@amd.com
