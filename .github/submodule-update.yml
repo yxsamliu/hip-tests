@@ -1,18 +1,4 @@
 mappings:
-  - sourceBranch: amd-mainline-closed
-    dependents: #upstream repo details
-      - organization: AMD-Radeon-Driver
-        repo: compute
-        path: hip-tests
-        branch: amd/stg/compiler
-      - organization: AMD-Radeon-Driver
-        repo: compute
-        path: hip-tests
-        branch: amd/stg/compiler-closed
-      - organization: AMD-Radeon-Driver
-        repo: compute
-        path: hip-tests
-        branch: amd/stg/compiler-trunk
   - sourceBranch: amd-npi
     dependents: #upstream repo details
       - organization: AMD-Radeon-Driver
