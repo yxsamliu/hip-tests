@@ -6,6 +6,7 @@ set(TEST_SRC
     hipStreamCaptureRtc.cc
     includepath.cc
     hipRTCDeviceMalloc.cc
+    hiprtcGetLoweredName.cc
 )
 
 # AMD only tests
@@ -20,6 +21,7 @@ set(AMD_TEST_SRC
     hiprtc_MathFunctions_HeaderTst.cc
     hiprtc_fp16_HeaderTst.cc
     hiprtc_TextureTypes_HeaderTst.cc
+    hipRtcComplexHeader.cc
 )
 
 add_custom_target(copyRtcHeaders ALL
