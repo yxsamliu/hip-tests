@@ -73,7 +73,9 @@ set(TEST_SRC
     hipMallocManaged.cc
     hipMemRangeGetAttribute.cc
     hipMemRangeGetAttribute_old.cc
-    hipMemCoherencyTst.cc)
+    hipMemCoherencyTst.cc
+    hipMemsetD32.cc
+    hipMemsetD16.cc)
 
 if(HIP_PLATFORM MATCHES "amd")
   set(TEST_SRC
