@@ -114,6 +114,8 @@ set(TEST_SRC
     hipMemcpyFromSymbol.cc
     hipPtrGetAttribute.cc
     hipMemPoolApi.cc
+    hipDeviceGetMemPool.cc
+    hipDeviceSetMemPool.cc
     hipMemPoolSetGetAccess.cc
     hipMemPoolSetGetAttribute.cc
     hipMemPoolCreate.cc
@@ -153,6 +155,7 @@ set(TEST_SRC
     hipMemPrefetchAsync.cc
     hipMemGetInfo.cc
     hipFree.cc
+    hipFreeArray.cc
     hipMemcpySync.cc
     hipMemsetSync.cc
     hipMemsetAsync.cc
