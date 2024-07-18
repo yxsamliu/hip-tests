@@ -1426,8 +1426,6 @@
         "Unit_atomicCAS_system_Positive_Host_And_Peer_GPUs - int",
         "Unit_atomicCAS_system_Positive_Host_And_Peer_GPUs - unsigned int",
         "Unit_atomicCAS_system_Positive_Host_And_Peer_GPUs - unsigned long long",
-        "=== SWDEV-450255 & SWDEV-449527 ===",
-        "Unit_RTC_LinkAddFile_Negative",
         "=== SWDEV-453453 : Below tests failed in stress test on 22/03/24 ===",
         "Unit_hipDeviceGetGraphMemAttribute_Functional",
         "Unit_hipDeviceGetGraphMemAttribute_Functional_Multi_Device",
@@ -1441,6 +1439,17 @@
         "Unit_hipStreamBeginCaptureToGraph_CaptureDepGraph",
         "=== SWDEV-465071 Below test is temporarily disabled due to compiler change ===",
         "Unit_hipClassKernel_Virtual",
+        "Unit_fp8_compare_host_device - float",
+        "Unit_fp8_compare_host_device - double",
+        "Unit_fp8x2_compare_host_device",
+        "Unit_fp8x2_split_compare",
+        "Unit_fp8x4_split_compare",
+        "Unit_fp8_bool",
+        "Unit_all_fp8_cvt",
+        "Unit_all_fp8_vector_cvt",
+        "Unit_fp8_correctness - float",
+        "Unit_fp8_correctness - double",
+        "Unit_fp8_vector_basic_conversions",
     #endif
         "End of json"
     ]
