@@ -23,21 +23,21 @@ THE SOFTWARE.
 #include <array>
 
 /**
- * @addtogroup hipMemsetD16Async hipMemsetD16Async
+ * @addtogroup hipMemsetD32Async hipMemsetD32Async
  * @{
  * @ingroup MemoryTest
- * `hipMemsetD16Async(hipDeviceptr_t dest, unsigned char value, size_t count, hipStream_t stream)` -
+ * `hipMemsetD32Async(hipDeviceptr_t dest, unsigned char value, size_t count, hipStream_t stream)` -
  * Fills the first sizeBytes bytes of the memory area pointed to by dest with the constant
  * short value value.
  */
 
 // Target type the memset will operate on
-using test_target_t = uint16_t;
+using test_target_t = int;
 using memset_fn_t = hipError_t (*)(hipDeviceptr_t dest, test_target_t value, size_t count,
                                    hipStream_t stream);
 
 // The memset function itself
-static constexpr memset_fn_t memset_fn = hipMemsetD16Async;
+static constexpr memset_fn_t memset_fn = hipMemsetD32Async;
 
 // Table with buffer allocation number of elements
 static constexpr std::array<size_t, 5> buffer_nelems = {
@@ -108,12 +108,12 @@ static bool testMemset(allocator_fn_t allocator, deallocator_fn_t deallocator) {
  * after setting it to a known constant.
  * Test source
  * ------------------------
- *  - catch/unit/memory/hipMemsetD16Async.cc
+ *  - catch/unit/memory/hipMemsetD32Async.cc
  * Test requirements
  * ------------------------
  *  - HIP_VERSION >= 6.1
  */
-TEST_CASE("Unit_hipMemsetD16Async_ValidBuffer") {
+TEST_CASE("Unit_hipMemsetD32Async_ValidBuffer") {
   SECTION("Device Buffer") {
     bool result = testMemset(hipMalloc, hipFree);
 
@@ -136,12 +136,12 @@ TEST_CASE("Unit_hipMemsetD16Async_ValidBuffer") {
  *  - Checks function behaviour when provided invalid arguments.
  * Test source
  * ------------------------
- *  - catch/unit/memory/hipMemsetD16Async.cc
+ *  - catch/unit/memory/hipMemsetD32Async.cc
  * Test requirements
  * ------------------------
  *  - HIP_VERSION >= 6.1
  */
-TEST_CASE("Unit_hipMemsetD16Async_InvalidArg") {
+TEST_CASE("Unit_hipMemsetD32Async_InvalidArg") {
   constexpr size_t ptr_test_nelem = 4096;
   void* ptr = nullptr;
 
@@ -164,12 +164,12 @@ TEST_CASE("Unit_hipMemsetD16Async_InvalidArg") {
  * after setting it to a known constant.
  * Test source
  * ------------------------
- *  - catch/unit/memory/hipMemsetD16Async.cc
+ *  - catch/unit/memory/hipMemsetD32Async.cc
  * Test requirements
  * ------------------------
  *  - HIP_VERSION >= 6.1
  */
-TEST_CASE("Unit_hipMemsetD16Async_KernelBuffer") {
+TEST_CASE("Unit_hipMemsetD32Async_KernelBuffer") {
   constexpr size_t ptr_test_nelem = 4096;
   constexpr unsigned blocksPerCU = 6;
   constexpr unsigned threadsPerBlock = 256;

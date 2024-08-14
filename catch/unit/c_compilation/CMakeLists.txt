@@ -1,4 +1,4 @@
-# Copyright (c) 2022 Advanced Micro Devices, Inc. All Rights Reserved.
+# Copyright (c) 2024 Advanced Micro Devices, Inc. All Rights Reserved.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -18,38 +18,31 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-# Common Tests - Test independent of all platforms
 set(TEST_SRC
-    hipMemFaultStackAllocation.cc
-    hipLaunchBounds.cc
-    hipDynamicShared.cc
-    hipDynamicShared2.cc
-    hipEmptyKernel.cc
-    hipGridLaunch.cc
-    hipLanguageExtensions.cc
-    hipLaunchParm.cc
-    hipLaunchParmFunctor.cc
-    hipTestConstant.cc
-    hipTestGlobalVariable.cc
-    hipTestMemKernel.cc
-    launch_bounds.cc
-    hipAutoThreadIdx.cc
+    hipGetDeviceProp.cc
 )
-if(UNIX)
-  set(TEST_SRC ${TEST_SRC}
-      hipPrintfKernel.cc)
+
+set (PLATFORM_DEFINE __HIP_PLATFORM_AMD__)
+if(HIP_PLATFORM MATCHES "nvidia")
+    set (PLATFORM_DEFINE __HIP_PLATFORM_NVIDIA__)
 endif()
 
-# only for AMD
-if(HIP_PLATFORM MATCHES "amd")
-  set(AMD_SRC
-      hipExtLaunchKernelGGL.cc
-      hipSetupArgument.cc
-      hipConfigureCall.cc
-  )
-  set(TEST_SRC ${TEST_SRC} ${AMD_SRC})
-endif()
+# Creating Custom object file
+add_custom_target(devprop_c_custom
+    COMMAND ${HIP_PATH}/bin/hipcc
+            -c ${CMAKE_CURRENT_SOURCE_DIR}/hipGetDeviceProp.c
+            -I${HIP_PATH}/include
+            -D${PLATFORM_DEFINE}
+            -o hipGetDeviceProp.o
+    BYPRODUCTS hipGetDeviceProp.o
+)
 
-hip_add_exe_to_target(NAME KernelTest
+add_library(devprop_c OBJECT IMPORTED)
+set_property(TARGET devprop_c PROPERTY IMPORTED_OBJECTS "${CMAKE_CURRENT_BINARY_DIR}/hipGetDeviceProp.o")
+
+hip_add_exe_to_target(NAME CTests
                       TEST_SRC ${TEST_SRC}
-                      TEST_TARGET_NAME build_tests)
+                      TEST_TARGET_NAME build_tests
+                      LINKER_LIBS devprop_c)
+
+add_dependencies(CTests devprop_c_custom)
