@@ -24,6 +24,8 @@ set(AMD_TEST_SRC
     hiprtc_TextureTypes_HeaderTst.cc
     hipRtcComplexHeader.cc
     hipRtcPtrdiff_t.cc
+    hiprtc_Bitcode_UndefinedFn.cc
+    hiprtc_bfloat16_HeaderTst.cc
 )
 
 add_custom_target(copyRtcHeaders ALL
@@ -37,7 +39,8 @@ add_custom_target(copyRtcHeaders ALL
 if(UNIX)
    set(AMD_TEST_SRC ${AMD_TEST_SRC}
        RtcFunctions.cpp
-       RtcUtility.cpp)
+       RtcUtility.cpp
+       hiprtcComplrOptnTesting.cc)
 endif()
 
 if(HIP_PLATFORM MATCHES "nvidia")

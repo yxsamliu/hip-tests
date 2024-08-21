@@ -81,14 +81,16 @@ void Memcpy2DDeviceToDeviceShell(F memcpy_func, const hipStream_t kernel_stream 
     int can_access_peer = 0;
     HIP_CHECK(hipDeviceCanAccessPeer(&can_access_peer, src_device, dst_device));
     if (!can_access_peer) {
-      INFO("Peer access cannot be enabled between devices " << src_device << " " << dst_device);
-      REQUIRE(can_access_peer);
+      std::string msg = "Skipped as peer access cannot be enabled between devices " +
+          std::to_string(src_device) + " " + std::to_string(dst_device);
+      HipTest::HIP_SKIP_TEST(msg.c_str());
+      return;
     }
     HIP_CHECK(hipDeviceEnablePeerAccess(dst_device, 0));
   }
 
   LinearAllocGuard2D<int> src_alloc(cols * src_cols_mult, rows);
-  HIP_CHECK(hipSetDevice(src_device));
+  HIP_CHECK(hipSetDevice(dst_device));
   LinearAllocGuard2D<int> dst_alloc(cols, rows);
   HIP_CHECK(hipSetDevice(src_device));
   LinearAllocGuard<int> host_alloc(LinearAllocs::hipHostMalloc, dst_alloc.width() * rows);
@@ -179,6 +181,7 @@ void MemcpySyncBehaviorCheck(F memcpy_func, const bool should_sync,
   LaunchDelayKernel(std::chrono::milliseconds{300}, kernel_stream);
   HIP_CHECK(memcpy_func());
   if (should_sync) {
+    HIP_CHECK(hipStreamSynchronize(kernel_stream));
     HIP_CHECK(hipStreamQuery(kernel_stream));
   } else {
     HIP_CHECK_ERROR(hipStreamQuery(kernel_stream), hipErrorNotReady);
