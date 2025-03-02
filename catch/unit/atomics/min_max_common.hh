@@ -98,7 +98,7 @@ __global__ void TestKernel(TestType* const global_mem, TestType* const old_vals)
 
   const auto tid = cg::this_grid().thread_rank();
 
-  old_vals[tid] = PerformAtomicOperation<TestType, operation, memory_scope>(global_mem);
+  old_vals[tid] = my_atomicMax_system(global_mem, 7.5);
 }
 
 template <typename TestType>
