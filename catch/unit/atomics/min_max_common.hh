@@ -94,11 +94,26 @@ __device__ TestType PerformAtomicOperation(TestType* const mem) {
 
 template <typename TestType, AtomicOperation operation, bool use_shared_mem,
           int memory_scope = __HIP_MEMORY_SCOPE_AGENT>
-__global__ void TestKernel(TestType* const global_mem, TestType* const old_vals) {
+__global__ void TestKernel(TestType* const addr, TestType* const old_vals) {
 
   const auto tid = cg::this_grid().thread_rank();
+  const double val = 7.5;
+  typedef union u_hold {
+    double a;
+    unsigned long long b;
+  } u_hold_t;
+  u_hold_t u, v;
 
-  old_vals[tid] = my_atomicMax_system(global_mem, 7.5);
+  u.a =  __hip_atomic_load(addr, __ATOMIC_RELAXED, __HIP_MEMORY_SCOPE_SYSTEM);
+  bool neg_zero = 0x8000000000000000ULL == u.b;
+  bool done = false;
+  while (!done && (u.a < val || (neg_zero && val == 0.0))) {
+    done = __hip_atomic_compare_exchange_strong(addr, &u.a, val,
+               __ATOMIC_RELAXED, __ATOMIC_RELAXED, __HIP_MEMORY_SCOPE_SYSTEM);
+    neg_zero = 0x8000000000000000ULL == u.b;
+  }
+
+  old_vals[tid] = u.a;
 }
 
 template <typename TestType>
