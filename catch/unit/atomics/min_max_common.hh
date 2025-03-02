@@ -89,28 +89,7 @@ __host__ __device__ TestType GetTestValue() {
 template <typename TestType, AtomicOperation operation, int memory_scope = __HIP_MEMORY_SCOPE_AGENT>
 __device__ TestType PerformAtomicOperation(TestType* const mem) {
   const auto val = GetTestValue<TestType, operation>();
-
-  if constexpr (operation == AtomicOperation::kMin) {
-    return atomicMin(mem, val);
-  } else if constexpr (operation == AtomicOperation::kMinSystem) {
-    return atomicMin_system(mem, val);
-  } else if constexpr (operation == AtomicOperation::kMax) {
-    return atomicMax(mem, val);
-  } else if constexpr (operation == AtomicOperation::kMaxSystem) {
-    return my_atomicMax_system(mem, val);
-  } else if constexpr (operation == AtomicOperation::kUnsafeMin) {
-    return unsafeAtomicMin(mem, val);
-  } else if constexpr (operation == AtomicOperation::kSafeMin) {
-    return safeAtomicMin(mem, val);
-  } else if constexpr (operation == AtomicOperation::kUnsafeMax) {
-    return unsafeAtomicMax(mem, val);
-  } else if constexpr (operation == AtomicOperation::kSafeMax) {
-    return safeAtomicMax(mem, val);
-  } else if constexpr (operation == AtomicOperation::kBuiltinMin) {
-    return __hip_atomic_fetch_min(mem, val, __ATOMIC_RELAXED, memory_scope);
-  } else if constexpr (operation == AtomicOperation::kBuiltinMax) {
-    return __hip_atomic_fetch_max(mem, val, __ATOMIC_RELAXED, memory_scope);
-  }
+  return my_atomicMax_system(mem, val);
 }
 
 template <typename TestType, AtomicOperation operation, bool use_shared_mem,
