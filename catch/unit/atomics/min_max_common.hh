@@ -96,22 +96,18 @@ template <typename TestType, AtomicOperation operation, bool use_shared_mem,
           int memory_scope = __HIP_MEMORY_SCOPE_AGENT>
 __global__ void TestKernel(TestType* const addr, TestType* const old_vals) {
 
-  const auto tid = cg::this_grid().thread_rank();
+  const auto tid = threadIdx.x + blockDim.x * blockIdx.x;
   const double val = 7.5;
-  typedef union u_hold {
-    double a;
-    unsigned long long b;
-  } u_hold_t;
-  u_hold_t u, v;
+  double u;
 
-  u.a =  __hip_atomic_load(addr, __ATOMIC_RELAXED, __HIP_MEMORY_SCOPE_SYSTEM);
+  u =  __hip_atomic_load(addr, __ATOMIC_RELAXED, __HIP_MEMORY_SCOPE_SYSTEM);
   bool done = false;
-  while (!done && u.a < val) {
-    done = __hip_atomic_compare_exchange_strong(addr, &u.a, val,
+  while (!done && u < val) {
+    done = __hip_atomic_compare_exchange_strong(addr, &u, val,
                __ATOMIC_RELAXED, __ATOMIC_RELAXED, __HIP_MEMORY_SCOPE_SYSTEM);
   }
 
-  old_vals[tid] = u.a;
+  old_vals[tid] = u;
 }
 
 template <typename TestType>
