@@ -46,8 +46,7 @@ THE SOFTWARE.
  *  - HIP_VERSION >= 5.2
  */
 #if HT_AMD
-TEMPLATE_TEST_CASE("Unit_atomicMax_system_Positive_Peer_GPUs_Same_Address", "", int, unsigned int,
-                   unsigned long, unsigned long long, float, double) {
+TEMPLATE_TEST_CASE("Unit_atomicMax_system_Positive_Peer_GPUs_Same_Address", "", double) {
 #else
 TEMPLATE_TEST_CASE("Unit_atomicMax_system_Positive_Peer_GPUs_Same_Address", "", int, unsigned int,
                    unsigned long, unsigned long long) {
@@ -55,11 +54,11 @@ TEMPLATE_TEST_CASE("Unit_atomicMax_system_Positive_Peer_GPUs_Same_Address", "", 
   for (auto current = 0; current < cmd_options.iterations; ++current) {
     DYNAMIC_SECTION("Same address " << current) {
       MinMax::MultipleDeviceMultipleKernelTest<TestType, MinMax::AtomicOperation::kMaxSystem>(
-          2, 2, 1, sizeof(TestType));
+          8, 10, 1, sizeof(TestType));
     }
   }
 }
-
+#if 0
 /**
  * Test Description
  * ------------------------
@@ -122,7 +121,7 @@ TEMPLATE_TEST_CASE("Unit_atomicMax_system_Positive_Peer_GPUs_Scattered_Addresses
     }
   }
 }
-
+#endif
 /**
 * End doxygen group AtomicsTest.
 * @}

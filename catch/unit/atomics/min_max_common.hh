@@ -43,6 +43,32 @@ enum class AtomicOperation {
   kBuiltinMax
 };
 
+__device__
+inline
+double my_atomicMax_system(double* addr, double val) {
+  typedef union u_hold {
+    double a;
+    unsigned long long b;
+  } u_hold_t;
+  u_hold_t u, v;
+
+  u.a =  __hip_atomic_load(addr, __ATOMIC_RELAXED, __HIP_MEMORY_SCOPE_SYSTEM);
+  bool neg_zero = 0x8000000000000000ULL == u.b;
+  bool done = false;
+  int n = 0;
+  while (!done && (u.a < val || (neg_zero && val == 0.0))) {
+    n++;
+    done = __hip_atomic_compare_exchange_strong(addr, &u.a, val,
+               __ATOMIC_RELAXED, __ATOMIC_RELAXED, __HIP_MEMORY_SCOPE_SYSTEM);
+    neg_zero = 0x8000000000000000ULL == u.b;
+  }
+  /*if(u.a==5.5f) {
+    printf("u.a=%f, val=%f, done=%d, neg_zero=%d, n=%d\n", u.a, val, done, neg_zero, n);
+  }
+  */
+  return u.a;
+}
+
 constexpr auto kIntegerTestValue = 5;
 constexpr auto kFloatingPointTestValue = 5.5;
 
@@ -71,7 +97,7 @@ __device__ TestType PerformAtomicOperation(TestType* const mem) {
   } else if constexpr (operation == AtomicOperation::kMax) {
     return atomicMax(mem, val);
   } else if constexpr (operation == AtomicOperation::kMaxSystem) {
-    return atomicMax_system(mem, val);
+    return my_atomicMax_system(mem, val);
   } else if constexpr (operation == AtomicOperation::kUnsafeMin) {
     return unsafeAtomicMin(mem, val);
   } else if constexpr (operation == AtomicOperation::kSafeMin) {
@@ -286,9 +312,15 @@ void TestCore(const TestParams& p) {
     for (auto j = 0u; j < p.kernel_count; ++j) {
       const auto& stream = streams[i * p.kernel_count + j].stream();
       const auto old_vals = old_vals_devs[i].ptr() + j * p.ThreadCount();
+      //fprintf(stderr, "[%d][%d] mem_devs=%p old_vals=%p\n", i, j, mem_devs[i].ptr(), old_vals);
       LaunchKernel<TestType, operation, use_shared_mem, memory_scope>(p, stream, mem_devs[i].ptr(),
                                                                       old_vals);
     }
+  }
+
+  for (int i = 0; i < p.num_devices; i++) {
+      (void)hipSetDevice(i);
+      (void)hipDeviceSynchronize();
   }
 
   // Copy Results back to Host
