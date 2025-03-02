@@ -53,14 +53,10 @@ double my_atomicMax_system(double* addr, double val) {
   u_hold_t u, v;
 
   u.a =  __hip_atomic_load(addr, __ATOMIC_RELAXED, __HIP_MEMORY_SCOPE_SYSTEM);
-  bool neg_zero = 0x8000000000000000ULL == u.b;
   bool done = false;
-  int n = 0;
-  while (!done && (u.a < val || (neg_zero && val == 0.0))) {
-    n++;
+  while (!done && (u.a < val)) {
     done = __hip_atomic_compare_exchange_strong(addr, &u.a, val,
                __ATOMIC_RELAXED, __ATOMIC_RELAXED, __HIP_MEMORY_SCOPE_SYSTEM);
-    neg_zero = 0x8000000000000000ULL == u.b;
   }
   /*if(u.a==5.5f) {
     printf("u.a=%f, val=%f, done=%d, neg_zero=%d, n=%d\n", u.a, val, done, neg_zero, n);
