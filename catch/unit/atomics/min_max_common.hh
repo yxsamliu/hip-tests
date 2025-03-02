@@ -105,12 +105,10 @@ __global__ void TestKernel(TestType* const addr, TestType* const old_vals) {
   u_hold_t u, v;
 
   u.a =  __hip_atomic_load(addr, __ATOMIC_RELAXED, __HIP_MEMORY_SCOPE_SYSTEM);
-  bool neg_zero = 0x8000000000000000ULL == u.b;
   bool done = false;
-  while (!done && (u.a < val || (neg_zero && val == 0.0))) {
+  while (!done && u.a < val) {
     done = __hip_atomic_compare_exchange_strong(addr, &u.a, val,
                __ATOMIC_RELAXED, __ATOMIC_RELAXED, __HIP_MEMORY_SCOPE_SYSTEM);
-    neg_zero = 0x8000000000000000ULL == u.b;
   }
 
   old_vals[tid] = u.a;
