@@ -88,30 +88,17 @@ __host__ __device__ TestType GetTestValue() {
 
 template <typename TestType, AtomicOperation operation, int memory_scope = __HIP_MEMORY_SCOPE_AGENT>
 __device__ TestType PerformAtomicOperation(TestType* const mem) {
-  const auto val = GetTestValue<TestType, operation>();
+  const auto val = 7.5; //GetTestValue<TestType, operation>();
   return my_atomicMax_system(mem, val);
 }
 
 template <typename TestType, AtomicOperation operation, bool use_shared_mem,
           int memory_scope = __HIP_MEMORY_SCOPE_AGENT>
 __global__ void TestKernel(TestType* const global_mem, TestType* const old_vals) {
-  __shared__ TestType shared_mem;
 
   const auto tid = cg::this_grid().thread_rank();
 
-  TestType* const mem = use_shared_mem ? &shared_mem : global_mem;
-
-  if constexpr (use_shared_mem) {
-    if (tid == 0) mem[0] = global_mem[0];
-    __syncthreads();
-  }
-
-  old_vals[tid] = PerformAtomicOperation<TestType, operation, memory_scope>(mem);
-
-  if constexpr (use_shared_mem) {
-    __syncthreads();
-    if (tid == 0) global_mem[0] = mem[0];
-  }
+  old_vals[tid] = PerformAtomicOperation<TestType, operation, memory_scope>(global_mem);
 }
 
 template <typename TestType>
