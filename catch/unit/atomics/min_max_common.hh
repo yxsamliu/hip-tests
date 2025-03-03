@@ -43,32 +43,6 @@ enum class AtomicOperation {
   kBuiltinMax
 };
 
-__device__
-inline
-double my_atomicMax_system(double* addr, double val) {
-  typedef union u_hold {
-    double a;
-    unsigned long long b;
-  } u_hold_t;
-  u_hold_t u, v;
-
-  u.a =  __hip_atomic_load(addr, __ATOMIC_RELAXED, __HIP_MEMORY_SCOPE_SYSTEM);
-  bool neg_zero = 0x8000000000000000ULL == u.b;
-  bool done = false;
-  int n = 0;
-  while (!done && (u.a < val || (neg_zero && val == 0.0))) {
-    n++;
-    done = __hip_atomic_compare_exchange_strong(addr, &u.a, val,
-               __ATOMIC_RELAXED, __ATOMIC_RELAXED, __HIP_MEMORY_SCOPE_SYSTEM);
-    neg_zero = 0x8000000000000000ULL == u.b;
-  }
-  /*if(u.a==5.5f) {
-    printf("u.a=%f, val=%f, done=%d, neg_zero=%d, n=%d\n", u.a, val, done, neg_zero, n);
-  }
-  */
-  return u.a;
-}
-
 constexpr auto kIntegerTestValue = 5;
 constexpr auto kFloatingPointTestValue = 5.5;
 
@@ -242,9 +216,6 @@ void LaunchKernel(const TestParams& p, hipStream_t stream, TestType* const mem_p
   if (p.width == 1 && p.pitch == sizeof(TestType))
     TestKernel<TestType, operation, use_shared_mem, memory_scope>
         <<<p.blocks, p.threads, shared_mem_size, stream>>>(mem_ptr, old_vals);
-  else
-    TestKernel<TestType, operation, use_shared_mem, memory_scope>
-        <<<p.blocks, p.threads, shared_mem_size, stream>>>(mem_ptr, old_vals, p.width, p.pitch);
 }
 
 template <typename TestType, AtomicOperation operation, bool use_shared_mem,
