@@ -74,12 +74,12 @@ __global__ void TestKernel(TestType* const addr, TestType* const old_vals) {
   const double val = 7.5;
   double u;
 
-  u =  __hip_atomic_load(addr, __ATOMIC_ACQUIRE, __HIP_MEMORY_SCOPE_SYSTEM);
+  u =  __hip_atomic_load(addr, __ATOMIC_RELAXED, __HIP_MEMORY_SCOPE_SYSTEM);
   bool done = false;
   //while (!done && u < val) {
   if (u < val)
     done = __hip_atomic_compare_exchange_strong(addr, &u, val,
-               __ATOMIC_ACQ_REL, __ATOMIC_ACQUIRE, __HIP_MEMORY_SCOPE_SYSTEM);
+      __ATOMIC_RELAXED, __ATOMIC_RELAXED, __HIP_MEMORY_SCOPE_SYSTEM);
   //}
 
   old_vals[tid] = u;
