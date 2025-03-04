@@ -74,12 +74,13 @@ __global__ void TestKernel(TestType* const addr, TestType* const old_vals) {
   const double val = 7.5;
   double u;
 
-  u =  __hip_atomic_load(addr, __ATOMIC_RELAXED, __HIP_MEMORY_SCOPE_SYSTEM);
+  u =  __hip_atomic_load(addr, __ATOMIC_ACQUIRE, __HIP_MEMORY_SCOPE_SYSTEM);
   bool done = false;
-  while (!done && u < val) {
+  //while (!done && u < val) {
+  if (u < val)
     done = __hip_atomic_compare_exchange_strong(addr, &u, val,
-               __ATOMIC_RELAXED, __ATOMIC_RELAXED, __HIP_MEMORY_SCOPE_SYSTEM);
-  }
+               __ATOMIC_ACQ_REL, __ATOMIC_ACQUIRE, __HIP_MEMORY_SCOPE_SYSTEM);
+  //}
 
   old_vals[tid] = u;
 }
@@ -194,6 +195,20 @@ std::tuple<std::vector<TestType>, std::vector<TestType>> TestKernelHostRef(const
 template <typename TestType, AtomicOperation operation>
 void Verify(const TestParams& p, std::vector<TestType>& res_vals, std::vector<TestType>& old_vals) {
   auto [expected_res_vals, expected_old_vals] = TestKernelHostRef<TestType, operation>(p);
+
+  fprintf(stderr, "res_vals:\n");
+  for (auto i = 0u; i < res_vals.size(); ++i) {
+    if (res_vals[i] != 7.5)
+      fprintf(stderr, "%d %f\n", i, (double)res_vals[i]);
+  }
+  fprintf(stderr, "\n");
+
+  fprintf(stderr, "old_vals:\n");
+  for (auto i = 0u; i < old_vals.size(); ++i) {
+    if (old_vals[i] != 7.5)
+      fprintf(stderr, "%d %f\n", i, (double)old_vals[i]);
+  }
+  fprintf(stderr, "\n");
 
   for (auto i = 0u; i < res_vals.size(); ++i) {
     INFO("Results index: " << i);
