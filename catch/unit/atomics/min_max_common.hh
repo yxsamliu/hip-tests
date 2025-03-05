@@ -71,8 +71,8 @@ template <typename TestType, AtomicOperation operation, bool use_shared_mem,
 __global__ void TestKernel(TestType* const addr, TestType* const old_vals) {
 
   const auto tid = threadIdx.x + blockDim.x * blockIdx.x;
-  const double val = 7.5;
-  double u;
+  const TestType val = (TestType)7.5;
+  TestType u;
 
   u =  __hip_atomic_load(addr, __ATOMIC_RELAXED, __HIP_MEMORY_SCOPE_SYSTEM);
   bool done = false;
@@ -196,17 +196,29 @@ template <typename TestType, AtomicOperation operation>
 void Verify(const TestParams& p, std::vector<TestType>& res_vals, std::vector<TestType>& old_vals) {
   auto [expected_res_vals, expected_old_vals] = TestKernelHostRef<TestType, operation>(p);
 
+  #if 0
   fprintf(stderr, "res_vals:\n");
   for (auto i = 0u; i < res_vals.size(); ++i) {
     if (res_vals[i] != 7.5)
       fprintf(stderr, "%d %f\n", i, (double)res_vals[i]);
   }
   fprintf(stderr, "\n");
+  #endif
 
   fprintf(stderr, "old_vals:\n");
   for (auto i = 0u; i < old_vals.size(); ++i) {
-    if (old_vals[i] != 7.5)
-      fprintf(stderr, "%d %f\n", i, (double)old_vals[i]);
+    if (old_vals[i] != (TestType)7.5) {
+      assert(p.blocks.x * p.threads.x == p.ThreadCount());
+      int gpu_id = i / (p.kernel_count * p.ThreadCount());
+      int thread_id = i % (p.kernel_count * p.ThreadCount());
+      int kernel_id = thread_id / p.ThreadCount();
+      thread_id = thread_id % p.ThreadCount();
+      int block_id= thread_id / p.threads.x;
+      thread_id = thread_id % p.threads.x;
+      int warp_id = thread_id / warpSize;
+      int lane_id = thread_id % warpSize;
+      fprintf(stderr, "[%d:%d:%d:%d:%d] %f\n", gpu_id, kernel_id, block_id, warp_id, lane_id, (double)old_vals[i]);
+    }
   }
   fprintf(stderr, "\n");
 
@@ -228,6 +240,7 @@ template <typename TestType, AtomicOperation operation, bool use_shared_mem,
 void LaunchKernel(const TestParams& p, hipStream_t stream, TestType* const mem_ptr,
                   TestType* const old_vals) {
   const auto shared_mem_size = use_shared_mem ? p.width * p.pitch : 0u;
+  //fprintf(stderr, "mem_ptr=%p\n", mem_ptr);
   if (p.width == 1 && p.pitch == sizeof(TestType))
     TestKernel<TestType, operation, use_shared_mem, memory_scope>
         <<<p.blocks, p.threads, shared_mem_size, stream>>>(mem_ptr, old_vals);
