@@ -82,7 +82,7 @@ __device__ TestType PerformAtomicOperation(TestType* const mem) {
     return safeAtomicMax(mem, val);
   } else if constexpr (operation == AtomicOperation::kBuiltinMin) {
     return __hip_atomic_fetch_min(mem, val, __ATOMIC_RELAXED, memory_scope);
-  } else if constexpr (operation == AtomicOperation::kBuiltinMax) {
+  } else if constexpr (operation == AtomicOperation::kBuiltinMax) [[clang::atomic(fine_grained_memory)]]{
     return __hip_atomic_fetch_max(mem, val, __ATOMIC_RELAXED, memory_scope);
   }
 }
